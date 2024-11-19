@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "852065697904",
+    "project_id": "flutter-desayunos-dam2t",
+    "storage_bucket": "flutter-desayunos-dam2t.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:852065697904:android:815d88e860bb0bb366b4b5",
+        "android_client_info": {
+          "package_name": "com.miguelchema.prueba_final"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANLxsw1sXdNAjCVVxzC3zmLWV4_nkK340"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:852065697904:android:282e8696bf423e8066b4b5",
+        "android_client_info": {
+          "package_name": "com.miguelchema.pruebafinal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANLxsw1sXdNAjCVVxzC3zmLWV4_nkK340"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
