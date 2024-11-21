@@ -8,7 +8,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -33,38 +33,13 @@ class MyApp extends StatelessWidget {
             // Capa blanca semitransparente
             Container(
               color: Colors.white
-                  .withOpacity(0.8), // Fondo blanco con opacidad del 20%
+                  .withOpacity(0.8), // Fondo blanco semitransparente
             ),
             // Contenido
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Usuario',
-                        fillColor:
-                            Colors.white, // Etiqueta para el campo de texto
-                        border:
-                            OutlineInputBorder(), // Borde para el campo de texto
-                      ),
-                    ),
-                    const SizedBox(height: 16.0), // Espacio entre los campos
-                    const TextField(
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        labelText:
-                            'Contraseña', // Etiqueta para el campo de contraseña
-                        border: OutlineInputBorder(),
-                      ),
-                      obscureText: true, // Ocultar el texto ingresado
-                    ),
-                    const SizedBox(height: 16.0),
-                    butonLogin(context), // Añadido como hijo del Column
-                  ],
-                ),
+                child: LoginForm(), // Formulario separado en un widget
               ),
             ),
           ],
@@ -74,22 +49,138 @@ class MyApp extends StatelessWidget {
   }
 }
 
-ElevatedButton butonLogin(BuildContext context) {
-  return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white, // Color del texto del botón
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Bordes redondeados de 8px
-        ),
-      ),
-      onPressed: () async {
-        final AuthService _auth = AuthService();
-        var user = await _auth.createAccount("asd@asd.com", "12345678");
+class LoginForm extends StatefulWidget {
+  @override
+  _LoginFormState createState() => _LoginFormState();
+}
 
-        if (user != null) {
-          print("OK");
-        }
-      },
-      child: const Text("Registro"));
+class _LoginFormState extends State<LoginForm> {
+  final TextEditingController _userController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _auth = AuthService(); // Instancia de AuthService
+
+  @override
+  void dispose() {
+    _userController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextField(
+          controller: _userController, // Controlador para capturar usuario
+          decoration: const InputDecoration(
+            labelText: 'Usuario',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 16.0),
+        TextField(
+          controller:
+              _passwordController, // Controlador para capturar contraseña
+          decoration: const InputDecoration(
+            labelText: 'Contraseña',
+            border: OutlineInputBorder(),
+          ),
+          obscureText: true, // Ocultar el texto ingresado
+        ),
+        const SizedBox(height: 16.0),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white, // Color del texto del botón
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8), // Bordes redondeados
+            ),
+          ),
+          onPressed: _register, // Método para registrar
+          child: const Text("Registro"),
+        ),
+        const SizedBox(height: 16.0),
+        ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black, // Color del texto
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          onPressed: _signInWithGoogle,
+          icon: Image.asset(
+            'assets/google_logo.png', // Logo de Google en assets
+            height: 20.0,
+          ),
+          label: const Text("Iniciar sesión con Google"),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _register() async {
+    final String email = _userController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showSnackBar("Usuario o contraseña vacíos");
+      return;
+    }
+
+    if (!_isValidEmail(email)) {
+      _showSnackBar("Email no válido, prueba con otro!");
+      return;
+    }
+
+    if (!_isValidPassword(password)) {
+      _showSnackBar("Contraseña no válida. Debe tener al menos 8 caracteres.");
+      return;
+    }
+
+    try {
+      var result = await _auth.createAccount(email, password);
+
+      if (result == 1) {
+        _showSnackBar("Contraseña débil. Usa una más segura.");
+      } else if (result == 2) {
+        _showSnackBar("Este correo ya está en uso. Prueba con otro.");
+      } else if (result != null) {
+        _showSnackBar("Cuenta creada exitosamente!");
+      } else {
+        _showSnackBar("Error desconocido. Intenta de nuevo.");
+      }
+    } catch (e) {
+      _showSnackBar("Error al registrar: $e");
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    final result = await _auth.signInWithGoogle();
+
+    if (result != null) {
+      _showSnackBar("Inicio de sesión exitoso con Google!");
+    } else {
+      _showSnackBar("Error al iniciar sesión con Google.");
+    }
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    return emailRegex.hasMatch(email);
+  }
+
+  bool _isValidPassword(String password) {
+    return password.length >= 8;
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
 }
