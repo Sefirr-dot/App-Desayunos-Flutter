@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "852065697904-vos6832fsjojnqe6dllilrqtvavcvbk2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.miguelchema.pruebafinal",
+            "certificate_hash": "ad3390d4a88dd9dfe5f4b8b46544f9606b2c7a42"
+          }
+        },
+        {
           "client_id": "852065697904-9ankgpoufdl10rt8u3gnoc59q75ds6rb.apps.googleusercontent.com",
           "client_type": 3
         }
